@@ -52,6 +52,14 @@ define([
                     marketing_url: 'someurl',
                     status: 'active',
                     credit_redemption_overview: '',
+                    discount_data: {
+                        currency: 'USD',
+                        discount_value: 0,
+                        is_discounted: false,
+                        total_incl_tax: 300,
+                        total_incl_tax_excl_discounts: 300
+                    },
+                    full_program_price: 300,
                     card_image_url: 'some image',
                     faq: [],
                     price_ranges: [
@@ -549,7 +557,37 @@ define([
             view.render();
             expect($(view.$('.upgrade-message .card-msg')).text().trim()).toEqual('Certificate Status:');
             expect($(view.$('.upgrade-message .price')).text().trim()).toEqual('$10.00');
-            expect($(view.$('.upgrade-button')[0]).text().trim()).toEqual('Buy Certificate');
+            expect($(view.$('.upgrade-button.single-course-run')[0]).text().trim()).toEqual('Upgrade to Verified');
+        });
+
+        it('should render full program purchase link', function() {
+            view = initView();
+            view.render();
+            expect($(view.$('.upgrade-button.complete-program')).text().trim().
+                replace(/\s+/g, ' ')).
+                toEqual(
+                    'Upgrade All Remaining Courses ( $300 USD )'
+                );
+        });
+
+        it('should render partial program purchase link', function() {
+            view = initView({
+                programData: $.extend({}, options.programData, {
+                    discount_data: {
+                        currency: 'USD',
+                        discount_value: 30,
+                        is_discounted: true,
+                        total_incl_tax: 300,
+                        total_incl_tax_excl_discounts: 270
+                    }
+                })
+            });
+            view.render();
+            expect($(view.$('.upgrade-button.complete-program')).text().trim().
+                replace(/\s+/g, ' ')).
+                toEqual(
+                    'Upgrade All Remaining Courses ( $270 $300 USD )'
+                );
         });
 
         it('should render enrollment information', function() {
