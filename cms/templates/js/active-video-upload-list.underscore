@@ -1,24 +1,27 @@
 <form class="file-upload-form">
     <div class="file-drop-area">
-        <span class="video-upload-text"><%- gettext('Drag and drop or click here to upload video files.') %></span>
-        <br>
-        <div class="video-max-file-size-text"><%-
-            edx.StringUtils.interpolate(
-                // Translators: Maximum video file size in Giga Bytes
-                gettext('Max file size: {maxFileSize} GB'),
-                {
-                    maxFileSize: maxFileSize
-                }
-            ) %>
-        </div>
-        <div class="video-allowed-extensions-text"><%-
-            edx.StringUtils.interpolate(
-                // Translators: Extensions of videos allowed to upload
-                gettext('Extensions allowed: {videoExtensions}'),
-                {
-                    videoExtensions: videoExtensions
-                }
-            ) %>
+        <span class="icon fa fa-cloud-upload" aria-hidden="true"></span>
+        <div class="text-container">
+            <div class="video-uploads-header"><%- gettext('Upload Videos') %></div>
+            <div class="video-upload-text"><%- gettext('Drag and drop your video files here, or click this space to browse for files on your computer.') %></div>
+            <div class="video-max-file-size-text"><%-
+                edx.StringUtils.interpolate(
+                    // Translators: Maximum video file size in Giga Bytes
+                    gettext('Maximum file size: {maxFileSize} GB'),
+                    {
+                        maxFileSize: maxFileSize
+                    }
+                ) %>
+            </div>
+            <div class="video-allowed-extensions-text"><%-
+                edx.StringUtils.interpolate(
+                    // Translators: Extensions of videos allowed to upload
+                    gettext('Supported file types: {supportedVideoTypes}'),
+                    {
+                        supportedVideoTypes: supportedVideoTypes
+                    }
+                ) %>
+            </div>
         </div>
     </div>
     <input type="file" class="sr js-file-input" name="file" multiple>

@@ -15,15 +15,15 @@
 
   .file-upload-form {
     @include clearfix();
-    margin-bottom: ($baseline*1.5);
     width: 100%;
 
     .file-drop-area {
       border: 2px dashed $gray-l3;
       border-radius: ($baseline/5);
-      padding: ($baseline*3);
+      padding: ($baseline*1.25);
       background: $white;
-      text-align: center;
+      @include text-align(center);
+      cursor: pointer;
 
       &:hover,
       &.is-dragged {
@@ -32,8 +32,25 @@
         border-color: $blue-l4;
       }
 
-      .video-max-file-size-text {
-        margin-top: ($baseline/2);
+      .fa-cloud-upload{
+        font-size:7em;
+        vertical-align: top;
+        @include margin-right(0.1em);
+      }
+
+      .text-container {
+        display: inline-block;
+        @include text-align(left);
+
+        .video-uploads-header {
+          font-size: 1.5em;
+          margin-bottom: .25em;
+          font-weight: 600
+        }
+
+        .video-max-file-size-text {
+          margin-top: ($baseline/2);
+        }
       }
     }
   }

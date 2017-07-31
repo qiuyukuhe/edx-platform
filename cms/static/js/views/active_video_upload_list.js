@@ -47,7 +47,7 @@ define([
                     this.$el,
                     this.template({
                         maxFileSize: this.videoUploadMaxFileSizeInGB,
-                        videoExtensions: this.videoSupportedFileFormats.join(', ')
+                        supportedVideoTypes: this.videoSupportedFileFormats.join(', ')
                     })
                 );
                 _.each(this.itemViews, this.renderUploadView.bind(this));

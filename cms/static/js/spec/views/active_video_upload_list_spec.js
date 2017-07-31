@@ -59,12 +59,12 @@ define(
 
             it('renders correct text in file drag/drop area', function() {
                 var messages = {
-                        '.video-upload-text': 'Drag and drop or click here to upload video files.',
+                        '.video-upload-text': 'Drag and drop your video files here, or click this space to browse for files on your computer.',  // eslint-disable-line max-len
                         '.video-max-file-size-text': StringUtils.interpolate(
-                            'Max file size: {maxFileSize} GB', {maxFileSize: this.videoUploadMaxFileSizeInGB}
+                            'Maximum file size: {maxFileSize} GB', {maxFileSize: this.videoUploadMaxFileSizeInGB}
                         ),
                         '.video-allowed-extensions-text': StringUtils.interpolate(
-                            'Extensions allowed: {extensions}', {extensions: this.videoSupportedFileFormats.join(', ')}
+                            'Supported file types: {types}', {types: this.videoSupportedFileFormats.join(', ')}
                         )
                     },
                     self = this;
