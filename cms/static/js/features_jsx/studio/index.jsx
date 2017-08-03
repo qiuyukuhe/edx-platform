@@ -5,7 +5,8 @@ class CourseOrLibraryListing extends React.Component {
 
     render() {
         let allowReruns = this.props.allowReruns,
-            linkClass = this.props.linkClass;
+            linkClass = this.props.linkClass,
+            idBase = this.props.idBase;
 
         return (
             <ul className="list-courses">
@@ -13,7 +14,7 @@ class CourseOrLibraryListing extends React.Component {
                     this.props.items.map((item, i) =>
                         <li key={i} className="course-item" data-course-key={item.course_key}>
                             <a className={linkClass} href={item.url}>
-                                <h3 className="course-title" id={"title-"+linkClass+"-"+i}>{item.display_name}</h3>
+                                <h3 className="course-title" id={"title-"+idBase+"-"+i}>{item.display_name}</h3>
                                 <div className="course-metadata">
                                     <span className="course-org metadata-item">
                                         <span className="label">{gettext("Organization:")}</span> <span
@@ -40,16 +41,14 @@ class CourseOrLibraryListing extends React.Component {
                                     <li className="action action-rerun">
                                         <a href={item.rerun_link}
                                            className="button rerun-button"
-                                           title={item.display_name}
-                                           aria-describedby={"title-"+linkClass+"-"+i}
+                                           aria-describedby={"title-"+idBase+"-"+i}
                                         >{gettext("Re-run Course")}</a>
                                     </li>
                                     }
                                     <li className="action action-view">
                                         <a href={item.lms_link} rel="external"
                                            className="button view-button"
-                                           title={item.display_name}
-                                           aria-describedby={"title-"+linkClass+"-"+i}
+                                           aria-describedby={"title-"+idBase+"-"+i}
                                         >{gettext("View Live")}</a>
                                     </li>
                                 </ul>
@@ -69,7 +68,20 @@ export class StudioCourseIndex {
         const element = document.querySelector(selector);
         if (element) {
             ReactDOM.render(
-                <CourseOrLibraryListing items={context} linkClass="course-link" allowReruns={allowReruns}/>,
+                <CourseOrLibraryListing items={context} linkClass="course-link" idBase="course" allowReruns={allowReruns}/>,
+                element
+            );
+        }
+    }
+}
+
+export class StudioArchivedIndex {
+    constructor(selector, context, allowReruns) {
+        // The HTML element is only conditionally shown, based on number of archived courses.
+        const element = document.querySelector(selector);
+        if (element) {
+            ReactDOM.render(
+                <CourseOrLibraryListing items={context} linkClass="course-link" idBase="archived" allowReruns={allowReruns}/>,
                 element
             );
         }
@@ -82,7 +94,7 @@ export class StudioLibraryIndex {
         const element = document.querySelector(selector);
         if (element) {
             ReactDOM.render(
-                <CourseOrLibraryListing items={context} linkClass="library-link" allowReruns={false}/>,
+                <CourseOrLibraryListing items={context} linkClass="library-link" idBase="library" allowReruns={false}/>,
                 document.querySelector(selector)
             );
         }

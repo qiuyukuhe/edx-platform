@@ -559,7 +559,7 @@ from openedx.core.djangolib.js_utils import (
         ${sorted(courses, key=lambda s: s['display_name'].lower() if s['display_name'] is not None else '') | n, dump_js_escaped_json},
         enableReruns
     );
-    new StudioCourseIndex(
+    new StudioArchivedIndex(
         ".react-archived-course-listing",
         ${sorted(archived_courses, key=lambda s: s['display_name'].lower() if s['display_name'] is not None else '') | n, dump_js_escaped_json},
         enableReruns
