@@ -445,7 +445,7 @@ from openedx.core.djangolib.js_utils import (
       <div class="archived-courses react-archived-course-listing archived-courses-tab"></div>
       %endif
 
-      %if len(libraries) > 0:
+      %if len(libraries) > 0 or optimization_enabled:
       <div class="libraries react-library-listing libraries-tab"></div>
 
       %else:
