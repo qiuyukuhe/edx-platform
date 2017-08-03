@@ -62,6 +62,117 @@ VIDEO_UPLOAD_MAX_FILE_SIZE_GB = 5
 # maximum time for video to remain in upload state
 MAX_UPLOAD_HOURS = 24
 
+# 3rd Party Transcription Plans
+THIRD_PARTY_TRANSCRIPTION_PLANS = {
+    'Cielo24': {
+        'display_name': 'Cielo24',
+        'turnaround': {
+            'STANDARD': 'Standard, 48h',
+            'PRIORITY': 'Priority, 24h'
+        },
+        'fidelity': {
+            'MECHANICAL': {
+                'display_name': 'Mechanical, 75% Accuracy',
+                'languages': {
+                    'nl': 'Dutch',
+                    'en': 'English',
+                    'fr': 'French',
+                    'de': 'German',
+                    'it': 'Italian',
+                    'es': 'Spanish',
+                }
+            },
+            'PREMIUM': {
+                'display_name': 'Premium, 95% Accuracy',
+                'languages': {
+                    'ar': 'Arabic',
+                    'zh-tw': 'Chinese - Mandarin (Traditional)',
+                    'zh-cmn': 'Chinese - Mandarin (Simplified)',
+                    'zh-yue': 'Chinese - Cantonese (Traditional)',
+                    'nl': 'Dutch',
+                    'en': 'English',
+                    'fr': 'French',
+                    'de': 'German',
+                    'he': 'Hebrew',
+                    'hi': 'Hindi',
+                    'it': 'Italian',
+                    'ja': 'Japanese',
+                    'ko': 'Korean',
+                    'pt': 'Portuguese',
+                    'ru': 'Russian',
+                    'es': 'Spanish',
+                    'tr': 'Turkish'
+                }
+            },
+            'PROFESSIONAL': {
+                'display_name': 'Professional, 99% Accuracy',
+                'languages': {
+                    'ar': 'Arabic',
+                    'zh-tw': 'Chinese - Mandarin (Traditional)',
+                    'zh-cmn': 'Chinese - Mandarin (Simplified)',
+                    'zh-yue': 'Chinese - Cantonese (Traditional)',
+                    'nl': 'Dutch',
+                    'en': 'English',
+                    'fr': 'French',
+                    'de': 'German',
+                    'he': 'Hebrew',
+                    'hi': 'Hindi',
+                    'it': 'Italian',
+                    'ja': 'Japanese',
+                    'ko': 'Korean',
+                    'pt': 'Portuguese',
+                    'ru': 'Russian',
+                    'es': 'Spanish',
+                    'tr': 'Turkish'
+                }
+            },
+        }
+    },
+    '3PlayMedia': {
+        'display_name': '3PlayMedia',
+        'turnaround': {
+            'extended_service':'10-Day/Extended',
+            'default': '4-Day/Default',
+            'expedited_service': '2-Day/Expedited',
+            'rush_service': '24-hour/Rush',
+            'same_day_service': 'Same Day'
+        },
+        'languages': {
+            'en': 'English',
+            'fr': 'French',
+            'de': 'German',
+            'it': 'Italian',
+            'nl': 'Dutch',
+            'es-419': 'Spanish (Latin America)',
+            'pt': 'Portuguese',
+            'zh-hans': 'Chinese (Simplified)',
+            'zh-cmn-Hant': 'Chinese (Traditional)',
+            'ar': 'Arabic',
+            'he': 'Hebrew',
+            'ru': 'Russian',
+            'ja': 'Japanese',
+            'sv': 'Swedish',
+            'cs': 'Czech',
+            'da': 'Danish',
+            'fi': 'Finnish',
+            'id': 'Indonesian',
+            'ko': 'Korean',
+            'no': 'Norwegian',
+            'pl': 'Polish',
+            'th': 'Thai',
+            'tr': 'Turkish',
+            'vi': 'Vietnamese',
+            'ro': 'Romanian',
+            'hu': 'Hungarian',
+            'ms': 'Malay',
+            'bg': 'Bulgarian',
+            'tl': 'Tagalog',
+            'sr': 'Serbian',
+            'sk': 'Slovak',
+            'uk': 'Ukrainian',
+        }
+    }
+}
 
 class StatusDisplayStrings(object):
     """
@@ -443,7 +554,8 @@ def videos_index_html(course):
                 'max_width': settings.VIDEO_IMAGE_MAX_WIDTH,
                 'max_height': settings.VIDEO_IMAGE_MAX_HEIGHT,
                 'supported_file_formats': settings.VIDEO_IMAGE_SUPPORTED_FILE_FORMATS
-            }
+            },
+            'transcription_plans': THIRD_PARTY_TRANSCRIPTION_PLANS
         }
     )
 
