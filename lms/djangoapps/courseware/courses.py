@@ -15,7 +15,8 @@ from courseware.date_summary import (
     CourseStartDate,
     TodaysDate,
     VerificationDeadlineDate,
-    VerifiedUpgradeDeadlineDate
+    VerifiedUpgradeDeadlineDate,
+    CertificateAvailableDate
 )
 from courseware.model_data import FieldDataCache
 from courseware.module_render import get_module
@@ -342,6 +343,7 @@ def get_course_date_blocks(course, user):
     sorted by date.
     """
     block_classes = (
+        CertificateAvailableDate,
         CourseEndDate,
         CourseStartDate,
         TodaysDate,
