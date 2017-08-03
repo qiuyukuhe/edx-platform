@@ -30,6 +30,8 @@ from openedx.core.djangoapps.programs.models import ProgramsApiConfig
 from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
 from openedx.core.djangoapps.theming.helpers import is_request_in_themed_site
 from openedx.core.djangoapps.user_api.accounts.api import request_password_change
+from openedx.core.djangoapps.user_api.api import get_password_reset_response, get_login_session_response, \
+    get_registration_response
 from openedx.core.djangoapps.user_api.errors import UserNotFound
 from openedx.core.lib.edx_api_utils import get_edx_api_data
 from openedx.core.lib.time_zone_utils import TIME_ZONE_CHOICES
@@ -385,12 +387,17 @@ def _get_form_descriptions(request):
             values are the JSON-serialized form descriptions.
 
     """
-    return {
-        'login': _local_server_get('/user_api/v1/account/login_session/', request.session),
-        'registration': _local_server_get('/user_api/v1/account/registration/', request.session),
-        'password_reset': _local_server_get('/user_api/v1/account/password_reset/', request.session)
-    }
+    # return {
+    #     'login': _local_server_get('/user_api/v1/account/login_session/', request.session),
+    #     'registration': _local_server_get('/user_api/v1/account/registration/', request.session),
+    #     'password_reset': _local_server_get('/user_api/v1/account/password_reset/', request.session)
+    # }
 
+    return {
+        'login':  get_login_session_response(),
+        'registration': get_registration_response(request),
+        'password_reset': get_password_reset_response()
+    }
 
 def _local_server_get(url, session):
     """Simulate a server-server GET request for an in-process API.

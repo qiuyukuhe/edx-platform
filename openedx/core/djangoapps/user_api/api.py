@@ -4,12 +4,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.utils.translation import ugettext as _
 
-from openedx.core.djangoapps.user_api.accounts import (
-    EMAIL_MIN_LENGTH,
-    EMAIL_MAX_LENGTH,
-    PASSWORD_MIN_LENGTH,
-    PASSWORD_MAX_LENGTH
-)
+from openedx.core.djangoapps.user_api import accounts
 from openedx.core.djangoapps.user_api.helpers import FormDescription
 from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
 
@@ -17,6 +12,19 @@ from student.forms import get_registration_extension_form
 
 
 def get_password_reset_response():
+    """Return a description of the password reset form.
+
+    This decouples clients from the API definition:
+    if the API decides to modify the form, clients won't need
+    to be updated.
+
+    See `user_api.helpers.FormDescription` for examples
+    of the JSON-encoded form description.
+
+    Returns:
+        HttpResponse
+
+    """
     form_desc = FormDescription("post", reverse("password_change_request"))
 
     # Translators: This label appears above a field on the password reset
@@ -40,8 +48,8 @@ def get_password_reset_response():
         placeholder=email_placeholder,
         instructions=email_instructions,
         restrictions={
-            "min_length": EMAIL_MIN_LENGTH,
-            "max_length": EMAIL_MAX_LENGTH,
+            "min_length": accounts.EMAIL_MIN_LENGTH,
+            "max_length": accounts.EMAIL_MAX_LENGTH,
         }
     )
 
@@ -49,6 +57,19 @@ def get_password_reset_response():
 
 
 def get_login_session_response():
+    """Return a description of the login form.
+
+    This decouples clients from the API definition:
+    if the API decides to modify the form, clients won't need
+    to be updated.
+
+    See `user_api.helpers.FormDescription` for examples
+    of the JSON-encoded form description.
+
+    Returns:
+        HttpResponse
+
+    """
     form_desc = FormDescription("post", reverse("user_api_login_session"))
 
     # Translators: This label appears above a field on the login form
@@ -72,8 +93,8 @@ def get_login_session_response():
         placeholder=email_placeholder,
         instructions=email_instructions,
         restrictions={
-            "min_length": EMAIL_MIN_LENGTH,
-            "max_length": EMAIL_MAX_LENGTH,
+            "min_length": accounts.EMAIL_MIN_LENGTH,
+            "max_length": accounts.EMAIL_MAX_LENGTH,
         }
     )
 
@@ -86,8 +107,8 @@ def get_login_session_response():
         label=password_label,
         field_type="password",
         restrictions={
-            "min_length": PASSWORD_MIN_LENGTH,
-            "max_length": PASSWORD_MAX_LENGTH,
+            "min_length": accounts.PASSWORD_MIN_LENGTH,
+            "max_length": accounts.PASSWORD_MAX_LENGTH,
         }
     )
 
@@ -103,6 +124,26 @@ def get_login_session_response():
 
 
 def get_registration_response(self, request):
+    """Return a description of the registration form.
+
+    This decouples clients from the API definition:
+    if the API decides to modify the form, clients won't need
+    to be updated.
+
+    This is especially important for the registration form,
+    since different edx-platform installations might
+    collect different demographic information.
+
+    See `user_api.helpers.FormDescription` for examples
+    of the JSON-encoded form description.
+
+    Arguments:
+        request (HttpRequest)
+
+    Returns:
+        HttpResponse
+
+    """
     form_desc = FormDescription("post", reverse("user_api_registration"))
     self._apply_third_party_auth_overrides(request, form_desc)
 
