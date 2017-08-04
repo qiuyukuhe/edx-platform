@@ -178,11 +178,12 @@ class ShoppingCartViewsTests(SharedModuleStoreTestCase, XssTestMixin):
         """
         Adds a course mode to the test course.
         """
-        mode = CourseModeFactory.create()
-        mode.course_id = self.course.id
-        mode.min_price = min_price
-        mode.mode_slug = mode_slug
-        mode.expiration_date = expiration_date
+        mode = CourseModeFactory.create(
+            course_id=self.course.id,
+            min_price=min_price,
+            mode_slug=mode_slug,
+            expiration_date=expiration_date,
+        )
         mode.save()
         return mode
 

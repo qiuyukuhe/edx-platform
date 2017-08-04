@@ -43,7 +43,7 @@ from shoppingcart.models import (
 )
 from student.models import CourseEnrollment, CourseEnrollmentAllowed
 from student.roles import CourseSalesAdminRole
-from student.tests.factories import CourseModeFactory, UserFactory
+from course_modes.tests.factories import CourseModeFactory, UserFactory
 from xmodule.modulestore.tests.django_utils import ModuleStoreTestCase
 from xmodule.modulestore.tests.factories import CourseFactory
 

@@ -24,7 +24,7 @@ from certificates.models import CertificateStatuses, GeneratedCertificate  # pyl
 from certificates.tests.factories import GeneratedCertificateFactory  # pylint: disable=import-error
 from openedx.core.djangoapps.commerce.utils import ECOMMERCE_DATE_FORMAT
 from student.models import CourseEnrollment, CourseEnrollmentAttribute
-from student.tests.factories import CourseModeFactory, UserFactory
+from course_modes.tests.factories import CourseModeFactory, UserFactory
 from xmodule.modulestore.tests.django_utils import SharedModuleStoreTestCase
 from xmodule.modulestore.tests.factories import CourseFactory
 
