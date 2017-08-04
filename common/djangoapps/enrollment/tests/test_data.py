@@ -12,7 +12,7 @@ from nose.tools import raises
 from pytz import UTC
 
 from course_modes.models import CourseMode
-from student.tests.factories import CourseModeFactory
+from course_modes.tests.factories import CourseModeFactory
 from enrollment import data
 from enrollment.errors import (
     CourseEnrollmentClosedError,
