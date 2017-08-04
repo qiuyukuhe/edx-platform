@@ -102,13 +102,13 @@ case "$TEST_SUITE" in
         PAVER_ARGS="--with-flaky --processes=-1 --cov-args='-p' --with-xunitmp"
         case "$SHARD" in
             "all")
-                paver test_system -s lms $PAVER_ARGS
+                paver test_system -s lms $PAVER_ARGS > lms-tests.log
                 ;;
             [1-3])
-                paver test_system -s lms --attr="shard=$SHARD" $PAVER_ARGS
+                paver test_system -s lms --attr="shard=$SHARD" $PAVER_ARGS > lms-tests.$SHARD.log
                 ;;
             4|"noshard")
-                paver test_system -s lms --attr='!shard' $PAVER_ARGS
+                paver test_system -s lms --attr='!shard' $PAVER_ARGS > lms-tests.REST.log
                 ;;
             *)
                 # If no shard is specified, rather than running all tests, create an empty xunit file. This is a
@@ -122,11 +122,11 @@ case "$TEST_SUITE" in
         ;;
 
     "cms-unit")
-        paver test_system -s cms --with-flaky --cov-args="-p" -v --with-xunitmp
+        paver test_system -s cms --with-flaky --cov-args="-p" -v --with-xunitmp > cms-tests.log
         ;;
 
     "commonlib-unit")
-        paver test_lib --with-flaky --cov-args="-p" -v --with-xunit
+        paver test_lib --with-flaky --cov-args="-p" -v --with-xunit > common-tests.log
         ;;
 
     "js-unit")
