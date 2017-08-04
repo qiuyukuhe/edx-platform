@@ -122,7 +122,21 @@
 
          $('#unenroll_form').on('ajax:complete', function(event, xhr) {
              if (xhr.status === 200) {
-                 location.href = urls.dashboard;
+                 $('.inner-wrapper header').hide();
+                 $('#unenroll_form').hide();
+                 $('#unenroll_form').after($('.reasons_survey'));
+                 $('.reasons_survey .slide1').removeClass('hidden');
+                 $('.submit_reasons').click(function() {
+                    var reason = $(".reasons_survey input[name='reason']:checked").attr('val');
+                    window.analytics.track('unenrollment_reason.selected', {
+                        category: 'user-engagement',
+                        label: reason
+                    });
+                    $('.reasons_survey').html($('.slide2').html());
+                    setTimeout(function() {
+                        location.href = urls.dashboard;
+                    }, 2000);
+                 });
              } else if (xhr.status === 403) {
                  location.href = urls.signInUser + '?course_id=' +
                 encodeURIComponent($('#unenroll_course_id').val()) + '&enrollment_action=unenroll';
