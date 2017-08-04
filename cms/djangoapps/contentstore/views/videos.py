@@ -25,7 +25,10 @@ from edxval.api import (
     get_videos_for_course,
     remove_video_for_course,
     update_video_status,
-    update_video_image
+    update_video_image,
+    get_3rd_party_transcription_plans,
+    get_transcript_preferences,
+    create_or_update_transcript_preferences,
 )
 from opaque_keys.edx.keys import CourseKey
 from openedx.core.djangoapps.waffle_utils import WaffleSwitchNamespace
@@ -38,7 +41,7 @@ from util.json_request import JsonResponse, expect_json
 from .course import get_course_and_check_access
 
 
-__all__ = ['videos_handler', 'video_encodings_download', 'video_images_handler']
+__all__ = ['videos_handler', 'video_encodings_download', 'video_images_handler', 'transcript_preferences_handler']
 
 LOGGER = logging.getLogger(__name__)
 
@@ -48,6 +51,9 @@ WAFFLE_SWITCHES = WaffleSwitchNamespace(name=WAFFLE_NAMESPACE)
 
 # Waffle switch for enabling/disabling video image upload feature
 VIDEO_IMAGE_UPLOAD_ENABLED = 'video_image_upload_enabled'
+
+# Waffle switch for enabling/disabling third party transcription feature
+THIRD_PARTY_TRANSCRIPTION_ENABLED = 'third_party_transcription_enabled'
 
 # Default expiration, in seconds, of one-time URLs used for uploading videos.
 KEY_EXPIRATION_IN_SECONDS = 86400
@@ -62,117 +68,14 @@ VIDEO_UPLOAD_MAX_FILE_SIZE_GB = 5
 # maximum time for video to remain in upload state
 MAX_UPLOAD_HOURS = 24
 
-# 3rd Party Transcription Plans
-THIRD_PARTY_TRANSCRIPTION_PLANS = {
-    'Cielo24': {
-        'display_name': 'Cielo24',
-        'turnaround': {
-            'STANDARD': 'Standard, 48h',
-            'PRIORITY': 'Priority, 24h'
-        },
-        'fidelity': {
-            'MECHANICAL': {
-                'display_name': 'Mechanical, 75% Accuracy',
-                'languages': {
-                    'nl': 'Dutch',
-                    'en': 'English',
-                    'fr': 'French',
-                    'de': 'German',
-                    'it': 'Italian',
-                    'es': 'Spanish',
-                }
-            },
-            'PREMIUM': {
-                'display_name': 'Premium, 95% Accuracy',
-                'languages': {
-                    'ar': 'Arabic',
-                    'zh-tw': 'Chinese - Mandarin (Traditional)',
-                    'zh-cmn': 'Chinese - Mandarin (Simplified)',
-                    'zh-yue': 'Chinese - Cantonese (Traditional)',
-                    'nl': 'Dutch',
-                    'en': 'English',
-                    'fr': 'French',
-                    'de': 'German',
-                    'he': 'Hebrew',
-                    'hi': 'Hindi',
-                    'it': 'Italian',
-                    'ja': 'Japanese',
-                    'ko': 'Korean',
-                    'pt': 'Portuguese',
-                    'ru': 'Russian',
-                    'es': 'Spanish',
-                    'tr': 'Turkish'
-                }
-            },
-            'PROFESSIONAL': {
-                'display_name': 'Professional, 99% Accuracy',
-                'languages': {
-                    'ar': 'Arabic',
-                    'zh-tw': 'Chinese - Mandarin (Traditional)',
-                    'zh-cmn': 'Chinese - Mandarin (Simplified)',
-                    'zh-yue': 'Chinese - Cantonese (Traditional)',
-                    'nl': 'Dutch',
-                    'en': 'English',
-                    'fr': 'French',
-                    'de': 'German',
-                    'he': 'Hebrew',
-                    'hi': 'Hindi',
-                    'it': 'Italian',
-                    'ja': 'Japanese',
-                    'ko': 'Korean',
-                    'pt': 'Portuguese',
-                    'ru': 'Russian',
-                    'es': 'Spanish',
-                    'tr': 'Turkish'
-                }
-            },
-        }
-    },
-    '3PlayMedia': {
-        'display_name': '3PlayMedia',
-        'turnaround': {
-            'extended_service':'10-Day/Extended',
-            'default': '4-Day/Default',
-            'expedited_service': '2-Day/Expedited',
-            'rush_service': '24-hour/Rush',
-            'same_day_service': 'Same Day'
-        },
-        'languages': {
-            'en': 'English',
-            'fr': 'French',
-            'de': 'German',
-            'it': 'Italian',
-            'nl': 'Dutch',
-            'es-419': 'Spanish (Latin America)',
-            'pt': 'Portuguese',
-            'zh-hans': 'Chinese (Simplified)',
-            'zh-cmn-Hant': 'Chinese (Traditional)',
-            'ar': 'Arabic',
-            'he': 'Hebrew',
-            'ru': 'Russian',
-            'ja': 'Japanese',
-            'sv': 'Swedish',
-            'cs': 'Czech',
-            'da': 'Danish',
-            'fi': 'Finnish',
-            'id': 'Indonesian',
-            'ko': 'Korean',
-            'no': 'Norwegian',
-            'pl': 'Polish',
-            'th': 'Thai',
-            'tr': 'Turkish',
-            'vi': 'Vietnamese',
-            'ro': 'Romanian',
-            'hu': 'Hungarian',
-            'ms': 'Malay',
-            'bg': 'Bulgarian',
-            'tl': 'Tagalog',
-            'sr': 'Serbian',
-            'sk': 'Slovak',
-            'uk': 'Ukrainian',
-        }
-    }
-}
+
+class TranscriptProvider(object):
+    """
+    3rd Party Transcription Provider Enumeration
+    """
+    CIELO24 = 'Cielo24'
+    THREE_PLAY_MEDIA = '3PlayMedia'
+
 
 class StatusDisplayStrings(object):
     """
@@ -204,6 +107,10 @@ class StatusDisplayStrings(object):
     _IMPORTED = ugettext_noop("Imported")
     # Translators: This is the status for a video that is in an unknown state
     _UNKNOWN = ugettext_noop("Unknown")
+    # Translators: This is the status for a video that is having its transcription in progress on servers
+    _TRANSCRIPTION_IN_PROGRESS = ugettext_noop("Transcription in Progress")
+    # Translators: This is the status for a video whose transcription is complete
+    _TRANSCRIPTION_READY = ugettext_noop("Transcription Ready")
 
     _STATUS_MAP = {
         "upload": _UPLOADING,
@@ -222,6 +129,8 @@ class StatusDisplayStrings(object):
         "youtube_duplicate": _YOUTUBE_DUPLICATE,
         "invalid_token": _INVALID_TOKEN,
         "imported": _IMPORTED,
+        "transcription_in_progress":_TRANSCRIPTION_IN_PROGRESS,
+        "transcription_ready": _TRANSCRIPTION_READY,
     }
 
     @staticmethod
@@ -345,6 +254,108 @@ def video_images_handler(request, course_key_string, edx_video_id=None):
         )
 
     return JsonResponse({'image_url': image_url})
+
+
+def validate_transcript_preferences(
+        provider, cielo24_fidelity, cielo24_turnaround, three_play_turnaround, preferred_languages
+):
+    """
+    Validate 3rd Party Transcription Preferences.
+
+    Arguments:
+        provider: Transcription provider
+        cielo24_fidelity:  Cielo24 transcription fidelity.
+        cielo24_turnaround: Cielo24 transcription turnaround.
+        three_play_turnaround: 3PlayMedia transcription turnaround.
+        preferred_languages: list of language codes.
+
+    Returns:
+        validated preferences or a validation error.
+    """
+    error, preferences = None, {}
+
+    # validate transcription providers
+    transcription_plans = get_3rd_party_transcription_plans()
+    if provider in transcription_plans.keys():
+
+        # Further validations for providers
+        if provider == TranscriptProvider.CIELO24:
+
+            # validate transcription fidelity
+            supported_fidelities = transcription_plans[provider]['fidelity']
+            if cielo24_fidelity in supported_fidelities.keys():
+
+                # validate transcription turnaround
+                supported_turnarounds = transcription_plans[provider]['turnaround']
+                if cielo24_turnaround not in supported_turnarounds.keys():
+                    error = 'invalid cielo24 turnaround'
+                    return error, preferences
+
+                # validate transcription languages
+                supported_languages = transcription_plans[provider]['fidelity'][cielo24_fidelity]['languages']
+                preferred_languages = set(preferred_languages)
+                if preferred_languages <= set(supported_languages.keys()):
+                    error = 'invalid languages'
+                    return error, preferences
+
+                # validated Cielo24 preferences
+                preferences = {
+                    'cielo24_fidelity': cielo24_fidelity,
+                    'cielo24_turnaround': cielo24_turnaround,
+                    'preferred_languages': list(preferred_languages),
+                }
+            else:
+                error = 'invalid cielo24 fidelity'
+        else:
+            # validate transcription turnaround
+            supported_turnarounds = transcription_plans[provider]['turnaround']
+            if three_play_turnaround not in supported_turnarounds.keys():
+                error = 'invalid cielo24 turnaround'
+                return error, preferences
+
+            # validate transcription languages
+            supported_languages = transcription_plans[provider]['languages']
+            preferred_languages = set(preferred_languages)
+            if preferred_languages <= set(supported_languages.keys()):
+                error = 'invalid languages'
+                return error, preferences
+
+            # validated 3PlayMedia preferences
+            preferences = {
+                'three_play_turnaround': three_play_turnaround,
+                'preferred_languages': list(preferred_languages),
+            }
+    else:
+        error = 'invalid provider.'
+
+    return error, preferences
+
+
+@expect_json
+@login_required
+@require_POST
+def transcript_preferences_handler(request, course_key_string):
+
+    # respond with a 404 if this feature is not enabled.
+    if not WAFFLE_SWITCHES.is_enabled(THIRD_PARTY_TRANSCRIPTION_ENABLED):
+        return HttpResponseNotFound()
+
+    provider = request.data.get('provider')
+    error, preferences = validate_transcript_preferences(
+        provider=provider,
+        cielo24_fidelity=request.data.get('cielo24_fidelity'),
+        cielo24_turnaround=request.data.get('cielo24_turnaround'),
+        three_play_turnaround=request.data.get('three_play_turnaround'),
+        preferred_languages=request.data.get('preferred_languages', [])
+    )
+
+    if error:
+        response = JsonResponse({'error': error, 'status': 400})
+    else:
+        transcript_preferences = create_or_update_transcript_preferences(course_key_string, provider, **preferences)
+        response = JsonResponse({'transcript_preferences': transcript_preferences})
+
+    return response
 
 
 @login_required
@@ -535,29 +546,39 @@ def videos_index_html(course):
     """
     Returns an HTML page to display previous video uploads and allow new ones
     """
-    return render_to_response(
-        'videos_index.html',
-        {
-            'context_course': course,
-            'image_upload_url': reverse_course_url('video_images_handler', unicode(course.id)),
-            'video_handler_url': reverse_course_url('videos_handler', unicode(course.id)),
-            'encodings_download_url': reverse_course_url('video_encodings_download', unicode(course.id)),
-            'default_video_image_url': _get_default_video_image_url(),
-            'previous_uploads': _get_index_videos(course),
-            'concurrent_upload_limit': settings.VIDEO_UPLOAD_PIPELINE.get('CONCURRENT_UPLOAD_LIMIT', 0),
-            'video_supported_file_formats': VIDEO_SUPPORTED_FILE_FORMATS.keys(),
-            'video_upload_max_file_size': VIDEO_UPLOAD_MAX_FILE_SIZE_GB,
-            'video_image_settings': {
-                'video_image_upload_enabled': WAFFLE_SWITCHES.is_enabled(VIDEO_IMAGE_UPLOAD_ENABLED),
-                'max_size': settings.VIDEO_IMAGE_SETTINGS['VIDEO_IMAGE_MAX_BYTES'],
-                'min_size': settings.VIDEO_IMAGE_SETTINGS['VIDEO_IMAGE_MIN_BYTES'],
-                'max_width': settings.VIDEO_IMAGE_MAX_WIDTH,
-                'max_height': settings.VIDEO_IMAGE_MAX_HEIGHT,
-                'supported_file_formats': settings.VIDEO_IMAGE_SUPPORTED_FILE_FORMATS
-            },
-            'transcription_plans': THIRD_PARTY_TRANSCRIPTION_PLANS
+    context = {
+        'context_course': course,
+        'image_upload_url': reverse_course_url('video_images_handler', unicode(course.id)),
+        'video_handler_url': reverse_course_url('videos_handler', unicode(course.id)),
+        'encodings_download_url': reverse_course_url('video_encodings_download', unicode(course.id)),
+        'default_video_image_url': _get_default_video_image_url(),
+        'previous_uploads': _get_index_videos(course),
+        'concurrent_upload_limit': settings.VIDEO_UPLOAD_PIPELINE.get('CONCURRENT_UPLOAD_LIMIT', 0),
+        'video_supported_file_formats': VIDEO_SUPPORTED_FILE_FORMATS.keys(),
+        'video_upload_max_file_size': VIDEO_UPLOAD_MAX_FILE_SIZE_GB,
+        'video_image_settings': {
+            'video_image_upload_enabled': WAFFLE_SWITCHES.is_enabled(VIDEO_IMAGE_UPLOAD_ENABLED),
+            'max_size': settings.VIDEO_IMAGE_SETTINGS['VIDEO_IMAGE_MAX_BYTES'],
+            'min_size': settings.VIDEO_IMAGE_SETTINGS['VIDEO_IMAGE_MIN_BYTES'],
+            'max_width': settings.VIDEO_IMAGE_MAX_WIDTH,
+            'max_height': settings.VIDEO_IMAGE_MAX_HEIGHT,
+            'supported_file_formats': settings.VIDEO_IMAGE_SUPPORTED_FILE_FORMATS
         }
-    )
+    }
+
+    if WAFFLE_SWITCHES.is_enabled(THIRD_PARTY_TRANSCRIPTION_ENABLED):
+        context.update({
+            'third_party_transcript_settings': {
+                'transcript_preferences_handler_url': reverse_course_url(
+                    'transcript_preferences_handler',
+                    unicode(course.id)
+                ),
+                'transcription_plans': get_3rd_party_transcription_plans(),
+            },
+            'active_transcript_preferences': get_transcript_preferences(unicode(course.id))
+        })
+
+    return render_to_response('videos_index.html', context)
 
 
 def videos_index_json(course):
