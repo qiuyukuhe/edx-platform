@@ -22,6 +22,7 @@
     "moment": "^2.15.1",
     "moment-timezone": "~0.5.5",
     "picturefill": "~3.0.2",
+    "prop-types": "^15.5.10",
     "raw-loader": "^0.5.1",
     "react": "^15.5.4",
     "react-dom": "^15.5.4",
