@@ -535,6 +535,14 @@ def videos_index_html(course):
     """
     Returns an HTML page to display previous video uploads and allow new ones
     """
+    course_transcription_data = {
+        'course_id': 'dummy',#unicode(course.id)
+        'provider': 'Cielo24',
+        'cielo24_fidelity': 'PROFESSIONAL',
+        'cielo24_turnaround': 'STANDARD',
+        'three_play_turnaround': '',
+        'preferred_languages': ['en', 'es']
+    }
     return render_to_response(
         'videos_index.html',
         {
@@ -555,7 +563,8 @@ def videos_index_html(course):
                 'max_height': settings.VIDEO_IMAGE_MAX_HEIGHT,
                 'supported_file_formats': settings.VIDEO_IMAGE_SUPPORTED_FILE_FORMATS
             },
-            'transcription_plans': THIRD_PARTY_TRANSCRIPTION_PLANS
+            'course_transcription_data': course_transcription_data,
+            'available_transcription_plans': THIRD_PARTY_TRANSCRIPTION_PLANS
         }
     )
 
