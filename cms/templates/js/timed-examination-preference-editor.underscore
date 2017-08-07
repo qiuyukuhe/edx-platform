@@ -45,11 +45,11 @@
                 <% var online_proctoring_rules = xblockInfo.get('online_proctoring_rules'); %>
                 <p class='field-message' id='review-rules-description'>
                 <%= edx.HtmlUtils.interpolateHtml(
-                    gettext('Specify any rules or rule exceptions that the proctoring review team should enforce when reviewing the videos. The proctored exam rules students see can be found in the learner documentation. Learners are also shown this before they start their exam. {linkStart}Online Proctoring Rules for Learners{linkEnd} If you add additional exam review rules, these instructors will also be shown to students before the start their exam.'),
+                    gettext('Specify any rules or rule exceptions that the proctoring review team should enforce when reviewing the videos. For example, you could specify that calculators are allowed. These specified rules are visible to learners before the learners start the exam, along with the {linkStart}general proctored exam rules{linkEnd}.'),
                     {
                         linkStart: edx.HtmlUtils.interpolateHtml(
                             edx.HtmlUtils.HTML('<a href="{onlineProctoringUrl}" title="{onlineProctoringTitle}">'),
-                            { onlineProctoringUrl: online_proctoring_rules, onlineProctoringTitle: gettext('Online Proctoring Rules for Learners')}),
+                            { onlineProctoringUrl: online_proctoring_rules, onlineProctoringTitle: gettext('General Proctored Exam Rules')}),
                         linkEnd: edx.HtmlUtils.HTML('</a>')
                     })
                 %>
