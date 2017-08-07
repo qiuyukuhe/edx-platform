@@ -14,11 +14,7 @@ from openedx.core.djangoapps.site_configuration import helpers as configuration_
 from openedx.core.djangoapps.user_api.helpers import FormDescription
 from openedx.features.enterprise_support.api import enterprise_customer_for_request
 from student.forms import get_registration_extension_form
-
-from .models import UserProfile
-
-
-# from .models import  UserProfile
+from student.models import UserProfile
 
 
 def get_password_reset_response():
