@@ -22,6 +22,7 @@ from openedx.core.djangoapps.user_api.api import (
     get_login_session_response,
     get_password_reset_response
 )
+from openedx.core.djangoapps.user_api.models import UserPreference
 from openedx.core.lib.api.authentication import SessionAuthenticationAllowInactiveUser
 from openedx.core.lib.api.permissions import ApiKeyHeaderPermission
 from student.cookies import set_logged_in_cookies
