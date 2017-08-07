@@ -33,8 +33,30 @@ class SubsectionGradeBase(object):
         self.course_version = getattr(subsection, 'course_version', None)
         self.subtree_edited_timestamp = getattr(subsection, 'subtree_edited_on', None)
 
-        self.graded_total = None  # aggregated grade for all graded problems
-        self.all_total = None  # aggregated grade for all problems, regardless of whether they are graded
+        self._graded_total = None
+        self._all_total = None
+
+    @property
+    def graded_total(self):
+        """
+        Aggregated grade for all graded problems
+        """
+        return self._graded_total
+
+    @graded_total.setter
+    def graded_total(self, value):
+        self._graded_total = value
+
+    @property
+    def all_total(self):
+        """
+        Aggregated grade for all problems, regardless of whether they are graded
+        """
+        return self._all_total
+
+    @all_total.setter
+    def all_total(self, value):
+        self._all_total = value
 
     @property
     def attempted(self):
@@ -63,9 +85,19 @@ class ZeroSubsectionGrade(SubsectionGradeBase):
 
     def __init__(self, subsection, course_data):
         super(ZeroSubsectionGrade, self).__init__(subsection)
-        self.graded_total = AggregatedScore(tw_earned=0, tw_possible=None, graded=False, first_attempted=None)
-        self.all_total = AggregatedScore(tw_earned=0, tw_possible=None, graded=self.graded, first_attempted=None)
         self.course_data = course_data
+
+    @property
+    def all_total(self):
+        return self._aggregate_scores[0]
+
+    @property
+    def graded_total(self):
+        return self._aggregate_scores[1]
+
+    @lazy
+    def _aggregate_scores(self):
+        return graders.aggregate_scores(self.problem_scores.values())
 
     @lazy
     def problem_scores(self):
