@@ -10,6 +10,7 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
 from django.shortcuts import redirect
 from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import ensure_csrf_cookie
@@ -391,7 +392,7 @@ def _get_form_descriptions(request):
 
     return {
         'password_reset': get_password_reset_response().content,
-        'login':  get_login_session_response().content,
+        'login': get_login_session_response().content,
         'registration': RegistrationResponse().get_registration_response(request).content
     }
 

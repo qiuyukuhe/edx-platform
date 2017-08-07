@@ -1,6 +1,7 @@
 """HTTP end-points for the User API. """
 
 from django.contrib.auth.models import User
+from django.core.exceptions import NON_FIELD_ERRORS, PermissionDenied, ValidationError
 from django.http import HttpResponse, HttpResponseForbidden
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext as _
