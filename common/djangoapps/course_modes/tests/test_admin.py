@@ -12,6 +12,7 @@ from pytz import UTC, timezone
 from course_modes.admin import CourseModeForm
 from course_modes.models import CourseMode
 from course_modes.tests.factories import CourseModeFactory
+from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
 # Technically, we shouldn't be importing verify_student, since it's
 # defined in the LMS and course_modes is in common.  However, the benefits
 # of putting all this configuration in one place outweigh the downsides.
@@ -89,6 +90,7 @@ class AdminCourseModeFormTest(ModuleStoreTestCase):
         """
         super(AdminCourseModeFormTest, self).setUp()
         self.course = CourseFactory.create()
+        CourseOverview.load_from_module_store(self.course.id)
 
     @ddt.data(
         ("honor", False),
@@ -197,7 +199,7 @@ class AdminCourseModeFormTest(ModuleStoreTestCase):
             mode_slug=mode,
         )
         return CourseModeForm({
-            "course_id": unicode(self.course.id),
+            "course": self.course.id,
             "mode_slug": mode,
             "mode_display_name": mode,
             "_expiration_datetime": upgrade_deadline,

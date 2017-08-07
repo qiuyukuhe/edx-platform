@@ -82,7 +82,7 @@ class CourseModeForm(forms.ModelForm):
             )
 
     def clean_course_id(self):
-        course_id = self.cleaned_data['course_id']
+        course_id = self.cleaned_data['course']
         try:
             course_key = CourseKey.from_string(course_id)
         except InvalidKeyError:
@@ -154,7 +154,7 @@ class CourseModeForm(forms.ModelForm):
         """
         # Trigger validation so we can access cleaned data
         if self.is_valid():
-            course_key = self.cleaned_data.get("course_id")
+            course = self.cleaned_data.get("course")
             verification_deadline = self.cleaned_data.get("verification_deadline")
             mode_slug = self.cleaned_data.get("mode_slug")
 
@@ -162,8 +162,11 @@ class CourseModeForm(forms.ModelForm):
             # we need to handle saving this ourselves.
             # Note that verification deadline can be `None` here if
             # the deadline is being disabled.
-            if course_key is not None and mode_slug in CourseMode.VERIFIED_MODES:
-                verification_models.VerificationDeadline.set_deadline(course_key, verification_deadline)
+            if course is not None and mode_slug in CourseMode.VERIFIED_MODES:
+                verification_models.VerificationDeadline.set_deadline(
+                    course.id,
+                    verification_deadline
+                )
 
         return super(CourseModeForm, self).save(commit=commit)
 
@@ -173,7 +176,7 @@ class CourseModeAdmin(admin.ModelAdmin):
     form = CourseModeForm
 
     fields = (
-        'course_id',
+        'course',
         'mode_slug',
         'mode_display_name',
         'min_price',
@@ -184,11 +187,11 @@ class CourseModeAdmin(admin.ModelAdmin):
         'bulk_sku'
     )
 
-    search_fields = ('course_id',)
+    search_fields = ('course',)
 
     list_display = (
         'id',
-        'course_id',
+        'course',
         'mode_slug',
         'min_price',
         'expiration_datetime_custom',
