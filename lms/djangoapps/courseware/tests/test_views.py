@@ -1448,8 +1448,8 @@ class ProgressPageTests(ProgressPageBaseTests):
             self._get_progress_page()
 
     @ddt.data(
-        (False, 43, 29),
-        (True, 36, 25)
+        (False, 42, 29),
+        (True, 35, 25)
     )
     @ddt.unpack
     def test_progress_queries(self, enable_waffle, initial, subsequent):
