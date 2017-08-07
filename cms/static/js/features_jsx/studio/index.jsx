@@ -41,14 +41,16 @@ class CourseOrLibraryListing extends React.Component {
                                     <li className="action action-rerun">
                                         <a href={item.rerun_link}
                                            className="button rerun-button"
-                                           aria-describedby={"title-"+idBase+"-"+i}
+                                           aria-labelledby={"re-run-"+idBase+"-"+i+" title-"+idBase+"-"+i}
+                                           id={"re-run-"+idBase+"-"+i}
                                         >{gettext("Re-run Course")}</a>
                                     </li>
                                     }
                                     <li className="action action-view">
                                         <a href={item.lms_link} rel="external"
                                            className="button view-button"
-                                           aria-describedby={"title-"+idBase+"-"+i}
+                                           aria-labelledby={"view-live-"+idBase+"-"+i+" title-"+idBase+"-"+i}
+                                           id={"view-live-"+idBase+"-"+i}
                                         >{gettext("View Live")}</a>
                                     </li>
                                 </ul>
